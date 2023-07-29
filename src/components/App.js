@@ -1,28 +1,36 @@
 import React, { useState } from "react";
-import { Route, Switch } from "react-router-dom";
-import Home from "./Home";
-import About from "./About";
+import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
 import Login from "./Login";
-import Navbar from "./Navbar";
+import Home from "./Home";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+
+  function handleLogin(user) {
+    setUser(user);
+  }
+
+  function handleLogout() {
+    setUser(null);
+  }
 
   return (
-    <div>
-      <Navbar setIsLoggedIn={setIsLoggedIn} />
+    <Router>
       <Switch>
-        <Route exact path="/about">
-          <About />
-        </Route>
-        <Route exact path="/login">
-          <Login setIsLoggedIn={setIsLoggedIn} />
-        </Route>
         <Route exact path="/">
-          <Home isLoggedIn={isLoggedIn} />
+          {/* Redirect to login if user is not logged in */}
+          {user ? <Redirect to="/home" /> : <Redirect to="/login" />}
+        </Route>
+        <Route path="/login">
+          {/* Pass the handleLogin function to the Login component */}
+          <Login onLogin={handleLogin} />
+        </Route>
+        <Route path="/home">
+          {/* Show the Home component only if the user is logged in */}
+          {user ? <Home onLogout={handleLogout} /> : <Redirect to="/login" />}
         </Route>
       </Switch>
-    </div>
+    </Router>
   );
 }
 
